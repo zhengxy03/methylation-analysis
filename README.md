@@ -18,8 +18,39 @@ aria2c -d ./ -Z https://ftp.ensembl.org/pub/release-113/fasta/mus_musculus/dna/M
 
 aria2c -d ./ -Z https://ftp.ensembl.org/pub/release-113/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.chromosome.17.fa.gz https://ftp.ensembl.org/pub/release-113/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.chromosome.18.fa.gz https://ftp.ensembl.org/pub/release-113/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.chromosome.19.fa.gz https://ftp.ensembl.org/pub/release-113/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.chromosome.X.fa.gz https://ftp.ensembl.org/pub/release-113/fasta/mus_musculus/dna/Mus_musculus.GRCm39.dna.chromosome.Y.fa.gz
 ```
-## 1.2 experiment data
+### 1.2 experiment data
+ncbi-run selector(GSE116016)
+```
 cd ../sequence
 mkdir WT_mESC_rep1 TetTKO_mESC_rep1
 
-nohup prefetch SRR736884{1..9} SRR736885{0..1} -O . &
+nohup prefetch SRR736884{1..2} SRR7368845 -O . &
+
+mkdir srr
+array=(SRR736884{1..2} SRR7368845)
+for i in "${array[@]}";
+do
+    dir="$HOME/project/musculus/sequence/$i"
+    cd "${dir}"
+    mv ${dir}/* $HOME/project/musculus/sequence/srr
+done
+
+cd $HOME/project/musculus/sequence/srr
+parallel -j 4 "
+    fastq-dump --split-3 --gzip {1}
+" ::: $(ls *.sra)
+```
+[EBI-ENA search page](https://www.ebi.ac.uk/ena)-project-Generated FASTQ files: FTP
+```
+aria2c -d ./WT_mESC_rep1/ -Z ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR736/001/SRR7368841/SRR7368841.fastq.gz ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR736/002/SRR7368842/SRR7368842.fastq.gz
+
+aria2c -d ./TetTKO_mESC_rep1/ -Z ftp://ftp.sra.ebi.ac.uk/vol1/fastq/SRR736/005/SRR7368845/SRR7368845.fastq.gz
+```
+## 2 quality control and trimming
+```
+fastqc --threads 3 ./WT_mESC_rep1/*.fastq.gz ./TetTKO_mESC_rep1/*.fastq.gz
+
+trim_galore -o ./WT_mESC_rep1/trimmed_data/ --fastqc ./WT_mESC_rep1/*.fastq.gz
+trim_galore -o ./TetTKO_mESC_rep1/trimmed_data/ --fastqc ./TetTKO_mESC_rep1/*.fastq.gz
+```
+## 3 methylation analysis
