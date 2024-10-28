@@ -54,3 +54,11 @@ trim_galore -o ./WT_mESC_rep1/trimmed_data/ --fastqc ./WT_mESC_rep1/*.fastq.gz
 trim_galore -o ./TetTKO_mESC_rep1/trimmed_data/ --fastqc ./TetTKO_mESC_rep1/*.fastq.gz
 ```
 ## 3 methylation analysis
+## 3.1 bismark download
+[bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/)
+## 3.2 genome indexing
+```
+bismark_genome_preparation --bowtie2 ~/project/musculus/genome
+```
+## 3.3 read alignment
+```
