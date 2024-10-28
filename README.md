@@ -62,3 +62,8 @@ bismark_genome_preparation --bowtie2 ~/project/musculus/genome
 ```
 ## 3.3 read alignment
 ```
+genome_path="$HOME/project/musculus/genomedata"
+cd ~/project/musculus/sequence
+
+bismark -o ./WT_mESC_rep1/bismark_result/ --parallel 4 --genome_folder ${genome_path} ./WT_mESC_rep1/*.fastq.gz
+bismark -o ./TetTKO_mEC_rep1/bismark_result/ --parallel 4 --genome_folder ${genome_path} ./TetTKO_mEC_rep1/*.fastq.gz
