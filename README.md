@@ -62,11 +62,11 @@ bismark_genome_preparation --bowtie2 ~/project/musculus/genome
 ```
 ## 3.3 read alignment
 ```
-genome_path="$HOME/project/musculus/genome"
+genome_path="$HOME/project/musculus/genome/chr1"
 cd ~/project/musculus/sequence
 
 bismark -o ./WT_mESC_rep1/bismark_result/ --parallel 4 --genome_folder ${genome_path} ./WT_mESC_rep1/*.fastq.gz
-bismark -o ./TetTKO_mEC_rep1/bismark_result/ --parallel 4 --genome_folder ${genome_path} ./TetTKO_mEC_rep1/*.fastq.gz
+bismark -o ./TetTKO_mESC_rep1/bismark_result/ --parallel 4 --genome_folder ${genome_path} ./TetTKO_mESC_rep1/*.fastq.gz
 
 samtools cat -o SRX4241790 trimmed_bismark_bt2.bam ./WT_mESC_rep1/bismark_result/*.bam
 ```
