@@ -67,4 +67,26 @@ cd ~/project/musculus/sequence
 
 bismark -o ./WT_mESC_rep1/bismark_result/ --parallel 4 --genome_folder ${genome_path} ./WT_mESC_rep1/*.fastq.gz
 bismark -o ./TetTKO_mEC_rep1/bismark_result/ --parallel 4 --genome_folder ${genome_path} ./TetTKO_mEC_rep1/*.fastq.gz
+
+samtools cat -o SRX4241790 trimmed_bismark_bt2.bam ./WT_mESC_rep1/bismark_result/*.bam
+```
+## aligned reads deduplication
+```
+mkdir -p ./WT_mESC_rep1/deduplicated_result/
+mkdir -p ./TetTKO_mESC_rep1/deduplicated_result/
+
+deduplicate_bismark --bam --output_dir ./WT_mESC_rep1/deduplicated_result/ ./SRX4241790_trimmed_bismark_bt2.bam
+
+deduplicate_bismark --bam --output_dir ./TetTKO_mESC_rep1/deduplicated_result/ ./TetTKO_mESC_rep1/bismark_result/*.bam
+```
+## methylation information extracting
+genome_path="$HOME/project/musculus/genome/chr1"
+cd $HOEM/project/musculus/sequence
+
+bismark_methylation_extractor --single-end --gzip --parallel 4 --bedGraph \
+--cytosine_report --genome_folder ${genome_path} \
+-o ./WT_mESC_rep1/deduplicated_result/ ./WT_mESC_rep1/deduplicated_result/*.bam
+bismark_methylation_extractor --single-end --gzip --parallel 4 --bedGraph \
+--cytosine_report --genome_folder ${genome_path} \
+-o ./TetTKO_mESC_rep1/deduplicated_result/ ./TetTKO_mESC_rep1/deduplicated_result/*.bam
 ```
