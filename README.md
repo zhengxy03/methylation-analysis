@@ -70,7 +70,7 @@ bismark -o ./TetTKO_mESC_rep1/bismark_result/ --parallel 4 --genome_folder ${gen
 
 samtools cat -o SRX4241790 trimmed_bismark_bt2.bam ./WT_mESC_rep1/bismark_result/*.bam
 ```
-## aligned reads deduplication
+## 3.4 aligned reads deduplication
 ```
 mkdir -p ./WT_mESC_rep1/deduplicated_result/
 mkdir -p ./TetTKO_mESC_rep1/deduplicated_result/
@@ -79,7 +79,8 @@ deduplicate_bismark --bam --output_dir ./WT_mESC_rep1/deduplicated_result/ ./SRX
 
 deduplicate_bismark --bam --output_dir ./TetTKO_mESC_rep1/deduplicated_result/ ./TetTKO_mESC_rep1/bismark_result/*.bam
 ```
-## methylation information extracting
+## 3.5 methylation information extracting
+```
 genome_path="$HOME/project/musculus/genome/chr1"
 cd $HOEM/project/musculus/sequence
 
@@ -89,4 +90,52 @@ bismark_methylation_extractor --single-end --gzip --parallel 4 --bedGraph \
 bismark_methylation_extractor --single-end --gzip --parallel 4 --bedGraph \
 --cytosine_report --genome_folder ${genome_path} \
 -o ./TetTKO_mESC_rep1/deduplicated_result/ ./TetTKO_mESC_rep1/deduplicated_result/*.bam
+```
+# 4 downstream analysis
+## 4.1 data preparation
+```
+mkdir -p ~/project/musculus/R_analysis/WT_data
+mkdir -p ~/project/musculus/R_analysis/TetTKO_data
+cd ~/project/musculus/R_analysis
+
+WT_path="$HOME/project/musculus/sequence/WT_mESC_rep1/deduplicated_result/SRX4241790_trimmed_bismark_bt2.deduplicated.bismark.cov.gz"
+TetTKO_path="$HOME/project/musculus/sequence/TetTKO_mESC_rep1/deduplicated_result/SRR7368845_bismark_bt2.deduplicated.bismark.cov.gz"
+
+cp $WT_path ./WT_data/
+cp $TetTKO_path ./TetTKO_data/
+
+gunzip -d ./WT_data/SRX4241790_trimmed_bismark_bt2.deduplicated.bismark.cov.gz
+gunzip -d ./TetTKO_data/SRR7368845_bismark_bt2.deduplicated.bismark.cov.gz
+
+#convert to a .txt
+cp ./WT_data/SRX4241790_trimmed_bismark_bt2.deduplicated.bismark.cov ./WT_data/SRX4241790_methylation_result.txt
+cp ./TetTKO_data/SRR7368845_bismark_bt2.deduplicated.bismark.cov ./TetTKO_data/SRR7368845_methylation_result.txt
+
+R
+```
+```
+#R
+library(tidyr)
+library(dplyr)
+
+file_names <- ("./WT_data/SRX4241790_methylation_result.txt", "./TetTKO_data/SRR7368845_methylation_result.txt")
+
+func_read_file <- function(file_name){
+    dir_vec <- strsplit(file_name, split="/")[[1]]
+    len <- length(dir_vec)
+    file_prefix=substring(dir_vec[len], 0, nchar(dir_vec[len]) - 4)
+    file_save_path=substring(file_name, 0, nchar(file_name) - nchar(dir_vec[len]))
+    print(paste("File", file_name, "is being importing and this may take a while..."), sep = "")
+    rawdata_df <- read.table(file_name, header = F, stringAsFactors = F )
+    print("Importing file is finished!")
+    colnames(rawdata_df) <- c("chr", "start", "end", "methyl%", "methyled", "unmethyled")
+    write.table(rawdata_df, paste(file_save_path, file_prefix, "_transfered.txt", sep = ""), row.names = F)
+}
+lapply(file_names, func_read_file)
+
+q()
+
+#Rscript
+
+#Rscript $HOME/project/Script/bismark_result_transfer.R ./WT_data/SRX4241790_methylation_result.txt ./TetTKO_data/SRR7368845_methylation_result.txt
 ```
