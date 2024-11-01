@@ -148,21 +148,21 @@ library(tidyr)
 library(dplyr)
 library(DSS)
 
-first_file <- "./WT_data/SRX4241790_methylation_result.txt"
-second_file <- "./TetTKO_data/SRR7368845_methylation_result.txt"
+first_file <- "./WT_data/SRX4241790_methylation_result_transfered.txt"
+second_file <- "./TetTKO_data/SRR7368845_methylation_result_transfered.txt"
 file_prefix <- "mm_all_chr"
-file_save_path <- ./
+file_save_path <- "./"
 
-fist_raw_data <- read.table(first_file, header = T, stringAsFactors = F )
-second_raw_data <- read.table(second_file, header = T, stringAsFactors = F)
+first_raw_data <- read.table(first_file, header = T, colClasses = "character")
+second_raw_data <- read.table(second_file, header = T, colClasses = "character")
 
 DSS_first_input_data <- first_raw_data %>%
     mutate(chr = paste("chr", chr, sep="")) %>%
-    mutate(pos = start, N = methyled + unmethyled, X = methyled) %>%
+    mutate(pos = start, N = as.numeric(methyled) + as.numeric(unmethyled), X = methyled) %>%
     select(chr, pos, N, X)
 DSS_second_input_data <- first_raw_data %>%
     mutate(chr = paste("chr", chr, sep="")) %>%
-    mutate(pos = start, N = methyled + unmethyled, X = methyled) %>%
+    mutate(pos = start, N = as.numeric(methyled) + as.numeric(unmethyled), X = methyled) %>%
     select(chr, pos, N, X)
 
 bsobj <- makeBSseqData(list(DSS_first_input_data, DSS_second_input_data), c("S1", "S2"))
