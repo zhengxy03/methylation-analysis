@@ -153,16 +153,17 @@ second_file <- "./TetTKO_data/SRR7368845_methylation_result_transfered.txt"
 file_prefix <- "mm_all_chr"
 file_save_path <- "./"
 
-first_raw_data <- read.table(first_file, header = T, colClasses = "character")
-second_raw_data <- read.table(second_file, header = T, colClasses = "character")
+setwd("/home/zxy0303/project/musculus/R_analysis")
+first_raw_data <- read.table(first_file, header = T)
+second_raw_data <- read.table(second_file, header = T)
 
 DSS_first_input_data <- first_raw_data %>%
     mutate(chr = paste("chr", chr, sep="")) %>%
-    mutate(pos = start, N = as.numeric(methyled) + as.numeric(unmethyled), X = methyled) %>%
+    mutate(pos = start, N = as.numeric(methyled) + as.numeric(unmethyled), X = as.numeric(methyled)) %>%
     select(chr, pos, N, X)
 DSS_second_input_data <- first_raw_data %>%
     mutate(chr = paste("chr", chr, sep="")) %>%
-    mutate(pos = start, N = as.numeric(methyled) + as.numeric(unmethyled), X = methyled) %>%
+    mutate(pos = start, N = as.numeric(methyled) + as.numeric(unmethyled), X = as.numeric(methyled)) %>%
     select(chr, pos, N, X)
 
 bsobj <- makeBSseqData(list(DSS_first_input_data, DSS_second_input_data), c("S1", "S2"))
