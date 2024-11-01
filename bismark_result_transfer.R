@@ -11,7 +11,7 @@ func_read_file <- function(file_name){
     file_prefix = substring(dir_vec[len], 0, nchar(dir_vec[len]) - 4)
     file_save_path = substring(file_name, 0, nchar(file_name) - nchar(dir_vec[len]))
     print(paste("File", file_name, "is being importing and this may take a while..."), sep = "")
-    rawdata_df <- read.table(file_name, header = F, stringsAsFactors = F)
+    rawdata_df <- read.table(file_name, header = F, colClasses = "character")
     print("Importing file is finished!")
     colnames(rawdata_df) <- c("chr", "start", "end", "methyl%", "methyled", "unmethyled")
     write.table(rawdata_df, paste(file_save_path, file_prefix, "_transfered.txt", sep = ""), row.names = F)

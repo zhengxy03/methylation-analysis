@@ -126,7 +126,7 @@ func_read_file <- function(file_name){
     file_prefix=substring(dir_vec[len], 0, nchar(dir_vec[len]) - 4)
     file_save_path=substring(file_name, 0, nchar(file_name) - nchar(dir_vec[len]))
     print(paste("File", file_name, "is being importing and this may take a while..."), sep = "")
-    rawdata_df <- read.table(file_name, header = F, stringAsFactors = F )
+    rawdata_df <- read.table(file_name, header = F, colClasses = "character")
     print("Importing file is finished!")
     colnames(rawdata_df) <- c("chr", "start", "end", "methyl%", "methyled", "unmethyled")
     write.table(rawdata_df, paste(file_save_path, file_prefix, "_transfered.txt", sep = ""), row.names = F)
@@ -137,5 +137,44 @@ q()
 
 #Rscript
 
+#Rscript $HOME/project/Script/bismark_result_transfer.R ./WT_data/SRX4241790_methylation_result.txt ./TetTKO_data/SRR7368845_methylation_result.txt
+```
+## 4.2 DML/DMR detection
+```
+#R
+BiocManager::install("DSS")
+
+library(tidyr)
+library(dplyr)
+library(DSS)
+
+first_file <- "./WT_data/SRX4241790_methylation_result.txt"
+second_file <- "./TetTKO_data/SRR7368845_methylation_result.txt"
+file_prefix <- "mm_all_chr"
+file_save_path <- ./
+
+fist_raw_data <- read.table(first_file, header = T, stringAsFactors = F )
+second_raw_data <- read.table(second_file, header = T, stringAsFactors = F)
+
+DSS_first_input_data <- first_raw_data %>%
+    mutate(chr = paste("chr", chr, sep="")) %>%
+    mutate(pos = start, N = methyled + unmethyled, X = methyled) %>%
+    select(chr, pos, N, X)
+DSS_second_input_data <- first_raw_data %>%
+    mutate(chr = paste("chr", chr, sep="")) %>%
+    mutate(pos = start, N = methyled + unmethyled, X = methyled) %>%
+    select(chr, pos, N, X)
+
+bsobj <- makeBSseqData(list(DSS_first_input_data, DSS_second_input_data), c("S1", "S2"))
+dmlTest <- DMLtest(bsobj, group1 = c("S1"), group2 = c("S2"), smoothing = T)
+
+dmls <- callDML(dmlTest, p.threshold = 0.001)
+dmrs <- callDMR(dmlTest, p.threshold = 0.01)
+
+write.table(dmlTest, paste(file_save_path, file_prefix, "_DSS_test_result.txt", sep=""), row.names = F)
+write.table(dmls, paste(file_save_path, file_prefix, "_DSS_dmls_result.txt", sep = ""), row.names = F)
+write.table(dmrs, paste(file_save_path, file_prefix, "_DSS_dmrs_result.txt", sep = ""), row.names = F)
+
+#Rscript
 #Rscript $HOME/project/Script/bismark_result_transfer.R ./WT_data/SRX4241790_methylation_result.txt ./TetTKO_data/SRR7368845_methylation_result.txt
 ```
