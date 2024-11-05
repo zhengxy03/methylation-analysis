@@ -1,4 +1,18 @@
 # methylation-analysis
+* [download data](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#1-download-data)
+    * [reference data](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#11-reference-data)
+    * [experiment data](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#12-experiment-data)
+* [quality control and trimming](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#2-quality-control-and-trimming)
+* [methylation analysis](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#3-methylation-analysis)
+    * [bismark download](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#31-bismark-download)
+    * [genome indexing](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#32-genome-indexing)
+    * [read alignment](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#33-read-alignment)
+    * [aligned reads deduplication](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#34-aligned-reads-deduplication)
+    * [methylation information extracting](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#35-methylation-information-extracting)
+* [downstream analysis](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#4-downstream-analysis)
+    * [data preparation](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#41-data-preparation)
+    * [DML/DMR detection](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#42-dmldmr-detection)
+    
 ## 1 download data
 ### 1.1 reference data
 Ensembl-mouse
