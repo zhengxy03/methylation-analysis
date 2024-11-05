@@ -12,7 +12,7 @@
 * [downstream analysis](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#4-downstream-analysis)
     * [data preparation](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#41-data-preparation)
     * [DML/DMR detection](https://github.com/zhengxy03/methylation-analysis/blob/main/README.md#42-dmldmr-detection)
-    
+
 ## 1 download data
 ### 1.1 reference data
 Ensembl-mouse
@@ -70,11 +70,17 @@ trim_galore -o ./TetTKO_mESC_rep1/trimmed_data/ --fastqc ./TetTKO_mESC_rep1/*.fa
 ## 3 methylation analysis
 ## 3.1 bismark download
 [bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/)
+> Bismark 是一款用于分析 Bisulfite Sequencing（亚硫酸氢盐测序）数据的软件工具。它可以高效地进行读段比对和甲基化探测，能区分 CG（CpG）、CHG 和 CHH 等不同类型的甲基化位点，并且允许用户通过可视化来解释数据。<br>
+> 序列比对策略（bowtie2）对于每个读段中的碱基，在与参考基因组比对时，会根据可能的甲基化情况进行匹配。例如，读段中的一个胸腺嘧啶（T）可能对应参考基因组中的胞嘧啶（C），这意味着该位点可能是未甲基化的
 ## 3.2 genome indexing
+input: genome reference data (.fa.gz)<br>
+output:Bisulfite_Genome(CT/GA conversion)(*.bt2)
 ```
 bismark_genome_preparation --bowtie2 ~/project/musculus/genome
 ```
 ## 3.3 read alignment
+input:Bisulfite_Genome & experiment data(.fastq.gz)<br>
+output:bismark_result/*.bam
 ```
 genome_path="$HOME/project/musculus/genome/chr1"
 cd ~/project/musculus/sequence
@@ -85,6 +91,9 @@ bismark -o ./TetTKO_mESC_rep1/bismark_result/ --parallel 4 --genome_folder ${gen
 samtools cat -o SRX4241790 trimmed_bismark_bt2.bam ./WT_mESC_rep1/bismark_result/*.bam
 ```
 ## 3.4 aligned reads deduplication
+去除PCR扩增过度的影响<br>
+input:bismark_result<br>
+output:deduplicated_result(.bam)
 ```
 mkdir -p ./WT_mESC_rep1/deduplicated_result/
 mkdir -p ./TetTKO_mESC_rep1/deduplicated_result/
@@ -98,7 +107,7 @@ deduplicate_bismark --bam --output_dir ./TetTKO_mESC_rep1/deduplicated_result/ .
 genome_path="$HOME/project/musculus/genome/chr1"
 cd $HOEM/project/musculus/sequence
 
-bismark_methylation_extractor --single-end --gzip --parallel 4 --bedGraph \
+bismark_methylation_extractor  --single-end --gzip --parallel 4 --bedGraph \
 --cytosine_report --genome_folder ${genome_path} \
 -o ./WT_mESC_rep1/deduplicated_result/ ./WT_mESC_rep1/deduplicated_result/*.bam
 bismark_methylation_extractor --single-end --gzip --parallel 4 --bedGraph \
@@ -193,3 +202,10 @@ write.table(dmrs, paste(file_save_path, file_prefix, "_DSS_dmrs_result.txt", sep
 #Rscript
 #Rscript $HOME/project/Script/bismark_result_transfer.R ./WT_data/SRX4241790_methylation_result.txt ./TetTKO_data/SRR7368845_methylation_result.txt
 ```
+
+# others
+bowtie原理：
+> 参考序列预处理
+> Bowtie 首先对参考基因组或参考序列进行预处理，构建索引。这个过程类似于给一本书建立索引，目的是为了在后续的比对过程中能够快速地定位短读段可能出现的位置。例如，对于一个包含大量基因序列的参考基因组，Bowtie 会将其分割成小的片段（通常是固定长度），并记录每个片段的位置和相关信息。这些片段就像索引中的词条，用于快速查找。
+> 基于 Burrows - Wheeler 变换（BWT）
+> 构建索引的核心是 Burrows - Wheeler 变换。BWT 是一种数据变换方法，它对参考序列进行重排，使得相似的字符尽可能地聚集在一起。这种变换后的序列具有特殊的性质，能够大大提高后续查找的效率。以一个简单的字符串 “ACGTACG” 为例，经过 BWT 变换后，序列会被重排成一种更有利于查找的形式。在这个新的序列形式中，相同的碱基（如 “C”）会相对更集中，这有助于快速定位包含这些碱基的短读段在参考序列中的位置。
